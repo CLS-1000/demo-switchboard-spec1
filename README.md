@@ -4,7 +4,7 @@
 
 An interactive demo of SWITCHBOARD, the operator's board over the CLS-1000 systems, and the SPEC-1 desks behind it.
 
-**[▶ Open the live demo](https://cls-1000.github.io/demo-repository/)** · [Logo gallery](https://cls-1000.github.io/demo-repository/gallery.html) · [Triage Desk](https://cls-1000.github.io/demo-repository/triage.html) · [MCP Console](https://cls-1000.github.io/demo-repository/mcp.html)
+**[▶ Open the live demo](https://cls-1000.github.io/github/)** · [Logo gallery](https://cls-1000.github.io/github/gallery.html) · [Triage Desk](https://cls-1000.github.io/github/triage.html) · [MCP Console](https://cls-1000.github.io/github/mcp.html)
 
 **Everything here runs on sample data.** The runs, records, briefs and signals are illustrative. Nothing in this demo is live, and nothing is published from it.
 
@@ -24,7 +24,7 @@ The logo gallery's accent color defaults to signal orange (`#F26A1B`). Use its s
 
 ## Viewing it
 
-Open `index.html` in a browser, or use the GitHub Pages site: https://cls-1000.github.io/demo-repository/
+Open `index.html` in a browser, or use the GitHub Pages site: https://cls-1000.github.io/github/
 
 ## Rights
 
