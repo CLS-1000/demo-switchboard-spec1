@@ -13,15 +13,16 @@ h1{font-size:20px;letter-spacing:.08em;margin:0 0 4px}.sub{color:var(--muted);fo
 .kv{border-top:1px solid #1a1a1a;padding:8px 0;font-size:13px}.k{color:var(--muted)}.v{color:var(--text)}
 .note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
 </style></head><body>
-<h1>SWITCHBOARD</h1><div class="sub">LIVE METERS - SPEC-1 /metrics/json</div>
+<h1>SWITCHBOARD</h1><div class="sub">LIVE METERS - SPEC-1 /metrics/json (note: served at root, not under /api/v1)</div>
 <div class="bar"><input id="base" value="http://localhost:8000/api/v1" spellcheck="false"><button id="load">LOAD METRICS</button></div>
 <div id="status" class="note">Set API base, ensure SPEC-1 is running with CORS, then Load.</div>
 <div class="panel"><h2>METRICS</h2><div id="out"></div></div>
 <script>
 const $=id=>document.getElementById(id);
 const base=()=>$('base').value.replace(/\/$/,'');
+const root=()=>base().replace(/\/api\/v1\/?$/,'');
 function setStatus(t,c){$('status').textContent=t;if(c)$('status').className=c;}
 function kv(o){let h='';for(const[k,v]of Object.entries(o)){if(v&&typeof v==='object'){h+='<div class="kv"><span class="k">'+k+':</span></div>'+kv(v);}else{h+='<div class="kv"><span class="k">'+k+':</span> <span class="v">'+esc(String(v))+'</span></div>';}}return h;}
 function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
-$('load').addEventListener('click',async()=>{setStatus('Fetching /metrics/json ...');try{const r=await fetch(base()+'/metrics/json');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();$('out').innerHTML=j&&typeof j==='object'?kv(j):'<div class="note">'+esc(JSON.stringify(j))+'</div>';setStatus('Metrics loaded.', 'ok');}catch(e){setStatus('Could not reach API: '+e.message,'bad');}});
+$('load').addEventListener('click',async()=>{setStatus('Fetching /metrics/json ...');try{const r=await fetch(root()+'/metrics/json');if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();$('out').innerHTML=j&&typeof j==='object'?kv(j):'<div class="note">'+esc(JSON.stringify(j))+'</div>';setStatus('Metrics loaded.', 'ok');}catch(e){setStatus('Could not reach API: '+e.message,'bad');}});
 </script></body></html>
