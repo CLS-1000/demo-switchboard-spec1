@@ -10,7 +10,6 @@ const SPEC1 = {
     localStorage.setItem('spec1_base', this.base);
   },
 
-  // Generic JSON GET with consistent error handling.
   async get(path) {
     let r;
     try {
@@ -22,7 +21,6 @@ const SPEC1 = {
     return r.json();
   },
 
-  // --- endpoint helpers (match the FastAPI routers on /api/v1) ---
   async runs(limit = 20) {
     const j = await this.get('/runs?limit=' + limit);
     return Array.isArray(j) ? j : (j.runs || []);
@@ -36,7 +34,6 @@ const SPEC1 = {
     return j.records || [];
   },
   async metrics() {
-    // served at root, NOT under /api/v1
     const root = this.base.replace(/\/api\/v1\/?$/, '');
     let r;
     try {
@@ -48,9 +45,20 @@ const SPEC1 = {
     return r.json();
   },
   async nodeSignal(id) {
-    // requires SPEC1_POLITICAL_WEB=true on the server
     return this.get('/nodes/' + encodeURIComponent(id) + '/signal');
   },
+  // Legislative desk (always on, no political-web flag needed)
+  async legStatus() { return this.get('/desk/legislative/status'); },
+  async legRecords(kind, q) {
+    const p = '?limit=200' + (kind ? '&kind=' + kind : '') + (q ? '&q=' + encodeURIComponent(q) : '');
+    return this.get('/desk/legislative/records' + p);
+  },
+  async legBrief(date) {
+    return this.get('/desk/legislative/brief' + (date ? '?date=' + date : ''));
+  },
+  // Narrative / brief store
+  async briefLatest() { return this.get('/brief/latest'); },
+  async briefHistory() { return this.get('/brief/history'); },
 };
 
 function esc(s) {
@@ -60,12 +68,14 @@ function status(el, msg, cls) {
   el.textContent = msg;
   el.className = 'note' + (cls ? ' ' + cls : '');
 }
-// Shared nav + base bar injected into every page.
 function mountChrome(active) {
   const nav = [
     ['index.html', 'Board'],
     ['triage.html', 'Triage Desk'],
+    ['legislative.html', 'Legislative'],
+    ['narrative.html', 'Narrative'],
     ['citizen.html', 'Citizen Cognisance'],
+    ['mcp.html', 'MCP'],
   ];
   const bar = document.createElement('div');
   bar.className = 'bar';
@@ -79,4 +89,14 @@ function mountChrome(active) {
     SPEC1.setBase(document.getElementById('base').value);
     location.reload();
   });
+}
+// Render a flat dict as key/value rows.
+function kvRows(obj) {
+  let h = '';
+  for (const [k, v] of Object.entries(obj || {})) {
+    if (v == null) continue;
+    if (typeof v === 'object') { h += '<div class="kv"><span class="k">' + esc(k) + ':</span></div>' + kvRows(v); continue; }
+    h += '<div class="kv"><span class="k">' + esc(k) + ':</span> <span class="v">' + esc(v) + '</span></div>';
+  }
+  return h;
 }
