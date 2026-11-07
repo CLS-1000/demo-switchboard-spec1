@@ -13,6 +13,12 @@
 .panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
 .brief{border:1px solid #333;padding:10px 12px;margin-bottom:8px;cursor:pointer}.brief:hover{border-color:var(--accent)}
 .brief .d{color:var(--accent)}.brief .meta{color:var(--muted);font-size:12px}
+.head{font-size:16px;color:var(--accent);margin-bottom:6px}
+.sum{color:var(--muted);margin-bottom:14px}
+.sec{border-top:1px solid #1a1a1a;padding:10px 0}
+.sec h3{font-size:13px;letter-spacing:.06em;margin:0 0 6px;color:var(--text)}
+.sec .b{white-space:pre-wrap;font-size:13px}
+.sec .src{color:var(--muted);font-size:11px;margin-top:4px}
 .kv{border-top:1px solid #1a1a1a;padding:7px 0;font-size:13px}.k{color:var(--muted)}.v{color:var(--text)}
 .note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
 pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;color:var(--text);max-height:460px;overflow:auto;border:1px solid #222;padding:12px}
@@ -26,26 +32,47 @@ pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;color:var(--text
 mountChrome('narrative.html');
 const $ = id => document.getElementById(id);
 
+function renderBrief(b) {
+  // Structured schema (sections: {title, body, source_record_ids}) is the
+  // engine's canonical brief format. Fall back to markdown if present.
+  if (b.markdown || b.brief || b.content) {
+    return '<pre>' + esc(b.markdown || b.brief || b.content) + '</pre>';
+  }
+  let h = '';
+  h += '<div class="head">' + esc(b.headline || b.date || 'Brief') + '</div>';
+  if (b.summary) h += '<div class="sum">' + esc(b.summary) + '</div>';
+  const secs = b.sections || [];
+  for (const s of secs) {
+    h += '<div class="sec"><h3>' + esc(s.title || '') + '</h3>' +
+         '<div class="b">' + esc(s.body || '') + '</div>';
+    const n = (s.source_record_ids || []).length;
+    if (n) h += '<div class="src">' + n + ' source record(s)</div>';
+    h += '</div>';
+  }
+  if (b.confidence != null) h += '<div class="kv"><span class="k">confidence:</span> <span class="v">' + esc(b.confidence) + '</span></div>';
+  if (b.date) h += '<div class="kv"><span class="k">date:</span> <span class="v">' + esc(b.date) + '</span></div>';
+  return h;
+}
+
 async function loadHistory() {
   try {
     const h = await SPEC1.briefHistory();
     const list = Array.isArray(h) ? h : (h.briefs || h.history || []);
     $('history').innerHTML = (list && list.length)
-      ? list.map(b => '<div class="brief" data-d="' + esc(b.date||b.id||'') + '"><span class="d">' + esc(b.date||b.id||'?') + '</span> <span class="meta">' + esc((b.title||b.headline||'').slice(0,90)) + '</span></div>').join('')
+      ? list.map(b => '<div class="brief" data-d="' + esc(b.date||b.id||'') + '"><span class="d">' + esc(b.date||b.id||'?') + '</span> <span class="meta">' + esc((b.headline||b.title||'').slice(0,90)) + '</span></div>').join('')
       : '<span class="note">no briefs</span>';
   } catch (e) { $('history').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
 }
 async function loadLatest() {
   try {
     const b = await SPEC1.briefLatest();
-    const md = b.markdown || b.brief || b.content || JSON.stringify(b, null, 2);
-    $('brief').innerHTML = '<pre>' + esc(md) + '</pre>';
+    $('brief').innerHTML = renderBrief(b);
   } catch (e) { $('brief').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
 }
 $('history').addEventListener('click', e => {
   const el = e.target.closest('.brief'); if (!el || !el.dataset.d) return;
   SPEC1.get('/brief/' + encodeURIComponent(el.dataset.d)).then(b => {
-    $('brief').innerHTML = '<pre>' + esc(b.markdown || b.brief || b.content || JSON.stringify(b, null, 2)) + '</pre>';
+    $('brief').innerHTML = renderBrief(b);
   }).catch(err => { $('brief').innerHTML = '<span class="bad">' + esc(err.message) + '</span>'; });
 });
 loadHistory(); loadLatest();
