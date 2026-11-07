@@ -13,8 +13,7 @@
 .panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
 .brief{border:1px solid #333;padding:10px 12px;margin-bottom:8px;cursor:pointer}.brief:hover{border-color:var(--accent)}
 .brief .d{color:var(--accent)}.brief .meta{color:var(--muted);font-size:12px}
-.head{font-size:16px;color:var(--accent);margin-bottom:6px}
-.sum{color:var(--muted);margin-bottom:14px}
+.head{font-size:16px;color:var(--accent);margin-bottom:10px}
 .sec{border-top:1px solid #1a1a1a;padding:10px 0}
 .sec h3{font-size:13px;letter-spacing:.06em;margin:0 0 6px;color:var(--text)}
 .sec .b{white-space:pre-wrap;font-size:13px}
@@ -32,25 +31,27 @@ pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;color:var(--text
 mountChrome('narrative.html');
 const $ = id => document.getElementById(id);
 
+// Render the stored-structured brief into the SPEC-1 DAILY BRIEF format
+// (## SPEC-1 DAILY BRIEF — date / Executive Summary / Domain Briefings …).
 function renderBrief(b) {
-  // Structured schema (sections: {title, body, source_record_ids}) is the
-  // engine's canonical brief format. Fall back to markdown if present.
   if (b.markdown || b.brief || b.content) {
     return '<pre>' + esc(b.markdown || b.brief || b.content) + '</pre>';
   }
-  let h = '';
-  h += '<div class="head">' + esc(b.headline || b.date || 'Brief') + '</div>';
-  if (b.summary) h += '<div class="sum">' + esc(b.summary) + '</div>';
+  let h = '<div class="head">## SPEC-1 DAILY BRIEF — ' + esc(b.date || '?') + '</div>';
+  if (b.headline) h += '<div class="sec"><h3>Lead</h3><div class="b">' + esc(b.headline) + '</div></div>';
+  if (b.summary) h += '<div class="sec"><h3>Executive Summary</h3><div class="b">' + esc(b.summary) + '</div></div>';
   const secs = b.sections || [];
-  for (const s of secs) {
-    h += '<div class="sec"><h3>' + esc(s.title || '') + '</h3>' +
-         '<div class="b">' + esc(s.body || '') + '</div>';
-    const n = (s.source_record_ids || []).length;
-    if (n) h += '<div class="src">' + n + ' source record(s)</div>';
+  if (secs.length) {
+    h += '<div class="sec"><h3>Domain Briefings</h3>';
+    for (const s of secs) {
+      h += '<div class="b" style="color:var(--accent)"><b>' + esc(s.title || '') + '</b></div>' +
+           '<div class="b">' + esc(s.body || '') + '</div>';
+      const n = (s.source_record_ids || []).length;
+      if (n) h += '<div class="src">' + n + ' source record(s)</div>';
+    }
     h += '</div>';
   }
   if (b.confidence != null) h += '<div class="kv"><span class="k">confidence:</span> <span class="v">' + esc(b.confidence) + '</span></div>';
-  if (b.date) h += '<div class="kv"><span class="k">date:</span> <span class="v">' + esc(b.date) + '</span></div>';
   return h;
 }
 
