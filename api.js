@@ -68,13 +68,13 @@ function status(el, msg, cls) {
   el.textContent = msg;
   el.className = 'note' + (cls ? ' ' + cls : '');
 }
-function mountChrome(active) {
+function mountChrome(active, prefix = '') {
   const nav = [
     ['index.html', 'Board'],
     ['triage.html', 'Triage Desk'],
     ['legislative.html', 'Legislative'],
     ['narrative.html', 'Narrative'],
-    ['sample-brief.html', 'Sample Brief'],
+    ['briefs/index.html', 'Briefs'],
     ['citizen.html', 'Citizen Cognisance'],
     ['mcp.html', 'MCP'],
   ];
@@ -82,7 +82,7 @@ function mountChrome(active) {
   bar.className = 'bar';
   bar.innerHTML =
     '<span class="brand">SWITCHBOARD</span>' +
-    nav.map(([h, l]) => '<a href="' + h + '"' + (h === active ? ' class="on"' : '') + '>' + l + '</a>').join('') +
+    nav.map(([h, l]) => '<a href="' + prefix + h + '"' + (h === active ? ' class="on"' : '') + '>' + l + '</a>').join('') +
     '<input id="base" value="' + SPEC1.base + '" spellcheck="false">' +
     '<button id="setbase">SET</button>';
   document.body.insertBefore(bar, document.body.firstChild);

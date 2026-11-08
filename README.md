@@ -6,7 +6,7 @@ An interactive demo of SWITCHBOARD, the operator's board over the CLS-1000 syste
 
 **[▶ Open the live demo](https://cls-1000.github.io/github/)** · [Logo gallery](https://cls-1000.github.io/github/gallery.html) · [Triage Desk](https://cls-1000.github.io/github/triage.html) · [MCP Console](https://cls-1000.github.io/github/mcp.html)
 
-**Everything here runs on sample data.** The runs, records, briefs and signals are illustrative, except the Sample Brief, which is the archived output of one real cycle. Nothing in this demo is live, and nothing is published from it.
+**Everything here runs on sample data.** The runs, records, briefs and signals are illustrative, except the Brief Archive and Sample Brief, which are archived output of real cycles. Nothing in this demo is live, and nothing is published from it.
 
 ## Pages
 
@@ -17,6 +17,7 @@ An interactive demo of SWITCHBOARD, the operator's board over the CLS-1000 syste
 | [`triage.html`](triage.html) | Triage Desk: cycle runs, the gate funnel, and each record's provenance |
 | [`legislative.html`](legislative.html) | Legislative Desk: Oregon measures, interim hearings and the desk brief |
 | [`narrative.html`](narrative.html) | Narrative Desk: drafts in the editorial-proof layout, and release behind the publish guard |
+| [`briefs/index.html`](briefs/index.html) | Brief Archive: 22 daily briefs from real SPEC-1 cycles, model-written (April 2026) and rule-based (October 2026), each with a note on where it came from. Sources in [`samples/`](samples/) |
 | [`sample-brief.html`](sample-brief.html) | Sample Brief: the archived April 24, 2026 SPEC-1 daily brief (a real cycle's output, kept as the reference example of the house format). Source: [`samples/spec1-brief-2026-04-24.md`](samples/spec1-brief-2026-04-24.md) |
 | [`mcp.html`](mcp.html) | MCP Console: the tools SPEC-1 exposes to Claude |
 | [`citizen.html`](citizen.html) | Citizen Cognisance: a map of documented ties in Portland's political ecosystem |
