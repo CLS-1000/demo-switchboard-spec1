@@ -74,6 +74,7 @@ function mountChrome(active) {
     ['triage.html', 'Triage Desk'],
     ['legislative.html', 'Legislative'],
     ['narrative.html', 'Narrative'],
+    ['sample-brief.html', 'Sample Brief'],
     ['citizen.html', 'Citizen Cognisance'],
     ['mcp.html', 'MCP'],
   ];
