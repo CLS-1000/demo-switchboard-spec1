@@ -30,6 +30,6 @@ Open `index.html` in a browser, or use the GitHub Pages site: https://cls-1000.g
 
 ## Rights
 
-© EVASTARARCANA LLC. All rights reserved. This demo is shared for viewing only. It is not open source, and no license to copy, modify or redistribute it is granted.
+All rights reserved. This demo is shared for viewing only. It is not open source, and no license to copy, modify or redistribute it is granted.
 
 Corrections and questions are welcome as issues. Pull requests are not accepted.
