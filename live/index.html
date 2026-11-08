@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="copyright" content="EVASTARARCANA LLC"><title>SWITCHBOARD</title>
+<style>
+:root{--bg:#000;--border:#FFF;--text:#FFF;--muted:#888;--accent:#F26A1B;--mono:'IBM Plex Mono','Courier Prime',ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;padding:14px 24px;border-bottom:1px solid #222;flex-wrap:wrap}
+.brand{font-size:16px;letter-spacing:.12em}
+.bar a{color:var(--muted);text-decoration:none;letter-spacing:.06em}.bar a.on,.bar a:hover{color:var(--text)}
+.bar input{flex:1;min-width:220px;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 10px}
+.bar button{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 14px;cursor:pointer}
+.bar button:hover{background:var(--border);color:#000}
+.wrap{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+.panel{border:1px solid var(--border);padding:16px}
+.panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
+.kv{border-top:1px solid #1a1a1a;padding:7px 0;font-size:13px}.k{color:var(--muted)}.v{color:var(--text)}
+.run{border:1px solid #333;padding:10px 12px;margin-bottom:8px;cursor:pointer}.run:hover{border-color:var(--accent)}
+.run .id{color:var(--accent)}.run .meta{color:var(--muted);font-size:12px}
+.note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
+.lamp{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.l-amber{background:#F26A1B}.l-red{background:#ef4444}.l-green{background:#22c55e}.l-off{background:#333}
+</style></head><body>
+<h1 style="display:none">SWITCHBOARD</h1>
+<div class="wrap">
+  <div class="panel"><h2>METERS</h2><div id="meters"><span class="note">loading…</span></div></div>
+  <div class="panel"><h2>RECENT RUNS</h2><div id="runs"><span class="note">loading…</span></div></div>
+</div>
+<script src="../api.js"></script>
+<script>
+mountChrome('index.html', '', '../');
+const $ = id => document.getElementById(id);
+
+async function loadMeters() {
+  try {
+    const m = await SPEC1.metrics();
+    const cycles = (m.cycles && (m.cycles.total != null ? m.cycles.total : '?')) || 0;
+    const req = m.requests ? Object.keys(m.requests).length : 0;
+    $('meters').innerHTML =
+      '<div class="kv"><span class="k">cycles run:</span> <span class="v">' + esc(cycles) + '</span></div>' +
+      '<div class="kv"><span class="k">distinct endpoints hit:</span> <span class="v">' + esc(req) + '</span></div>' +
+      '<div class="kv"><span class="k">last cycle:</span> <span class="v">' + esc((m.cycles && m.cycles.last) || 'none yet') + '</span></div>' +
+      '<div class="note" style="margin-top:10px">Live from <code>GET /metrics/json</code>.</div>';
+  } catch (e) { $('meters').innerHTML = '<span class="bad">metrics: ' + esc(e.message) + '</span>'; }
+}
+async function loadRuns() {
+  try {
+    const runs = await SPEC1.runs(12);
+    $('runs').innerHTML = runs.length ? runs.map(r => {
+      const g = (r.guard && r.guard.tiers) || {};
+      const t = 'llm ' + (g.llm_verified || 0) + ' / rule ' + (g.rule_based || 0);
+      return '<div class="run" data-id="' + esc(r.run_id) + '"><span class="id">' + esc(r.run_id) +
+        '</span> <span class="meta">' + esc(r.mode || '') + ' · ' + esc((r.records_in_store || 0)) + ' records · ' + t + '</span></div>';
+    }).join('') : '<span class="note">no runs</span>';
+  } catch (e) { $('runs').innerHTML = '<span class="bad">runs: ' + esc(e.message) + '</span>'; }
+}
+$('runs').addEventListener('click', e => {
+  const el = e.target.closest('.run'); if (el) location.href = 'triage.html?run=' + encodeURIComponent(el.dataset.id);
+});
+loadMeters(); loadRuns();
+</script></body></html>

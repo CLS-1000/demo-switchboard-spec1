@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="copyright" content="EVASTARARCANA LLC"><title>SWITCHBOARD — Triage Desk</title>
+<style>
+:root{--bg:#000;--border:#FFF;--text:#FFF;--muted:#888;--accent:#F26A1B;--mono:'IBM Plex Mono','Courier Prime',ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;padding:14px 24px;border-bottom:1px solid #222;flex-wrap:wrap}
+.brand{font-size:16px;letter-spacing:.12em}
+.bar a{color:var(--muted);text-decoration:none;letter-spacing:.06em}.bar a.on,.bar a:hover{color:var(--text)}
+.bar input{flex:1;min-width:220px;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 10px}
+.bar button{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 14px;cursor:pointer}
+.bar button:hover{background:var(--border);color:#000}
+.wrap{padding:24px}
+.panel{border:1px solid var(--border);padding:16px;margin-bottom:16px}
+.panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
+.run{border:1px solid #333;padding:10px 12px;margin-bottom:8px;cursor:pointer}.run:hover{border-color:var(--accent)}
+.run .id{color:var(--accent)}.run .meta{color:var(--muted);font-size:12px}
+.rec{border-top:1px solid #1a1a1a;padding:9px 0;font-size:13px}
+.rec .k{color:var(--muted)}.rec .v{color:var(--text)}.rec .ex{color:var(--muted);margin-top:5px;font-size:12px}
+.note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
+.lamp{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}.l-pass{background:#22c55e}.l-fail{background:#ef4444}.l-unknown{background:#333}
+select,button.b{flex:0;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 12px;cursor:pointer}
+</style></head><body>
+<div class="wrap">
+  <div class="panel"><h2>RUNS</h2><div id="runs"><span class="note">loading…</span></div></div>
+  <div class="panel"><h2>RECORDS <span id="recfor" class="note"></span></h2>
+    <div id="recctrl" style="margin-bottom:10px;display:none">
+      <select id="tier"><option value="">all tiers</option><option value="llm_verified">llm_verified</option><option value="rule_based">rule_based</option></select>
+      <select id="gate"><option value="">all gates</option><option value="pass">pass</option><option value="fail">fail</option></select>
+      <button class="b" id="reload">RELOAD</button>
+    </div>
+    <div id="records"><span class="note">pick a run</span></div>
+  </div>
+</div>
+<script src="../api.js"></script>
+<script>
+mountChrome('triage.html', '', '../');
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+let selectedRun = null;
+
+async function loadRuns() {
+  try {
+    const runs = await SPEC1.runs(50);
+    $('runs').innerHTML = runs.length ? runs.map(r => {
+      const g = (r.guard && r.guard.tiers) || {};
+      return '<div class="run" data-id="' + esc(r.run_id) + '"><span class="id">' + esc(r.run_id) +
+        '</span> <span class="meta">' + esc(r.mode || '') + ' · ' + esc(r.records_in_store || 0) + ' recs · llm ' +
+        (g.llm_verified||0) + '/rule ' + (g.rule_based||0) + ' · ' + esc((r.started_at||'').slice(0,19).replace('T',' ')) + '</span></div>';
+    }).join('') : '<span class="note">no runs</span>';
+    const pre = params.get('run');
+    if (pre) selectRun(pre);
+  } catch (e) { $('runs').innerHTML = '<span class="bad">runs: ' + esc(e.message) + '</span>'; }
+}
+async function loadRecords() {
+  if (!selectedRun) return;
+  const tier = $('tier').value, gate = $('gate').value;
+  const q = (tier ? '&tier=' + tier : '') + (gate ? '&gate_status=' + gate : '');
+  try {
+    const recs = await SPEC1.runRecords(selectedRun, q);
+    $('records').innerHTML = '<div class="note">' + recs.length + ' record(s)</div>' + recs.map(rec => {
+      const lamp = rec.gate_status === 'pass' ? 'l-pass' : rec.gate_status === 'fail' ? 'l-fail' : 'l-unknown';
+      const fields = [['classification','cls'],['analysis_tier','tier'],['confidence','conf'],['source','src']];
+      const rows = fields.map(([k,l]) => rec[k] != null ? '<span class="k">' + l + ':</span> <span class="v">' + esc(rec[k]) + '</span>  ' : '').join('');
+      const ex = rec.signal_excerpt || rec.excerpt || rec.hypothesis || '';
+      return '<div class="rec"><span class="lamp ' + lamp + '"></span>' + rows +
+        (ex ? '<div class="ex">' + esc(String(ex).slice(0,280)) + '</div>' : '') + '</div>';
+    }).join('');
+  } catch (e) { $('records').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
+}
+function selectRun(id) {
+  selectedRun = id;
+  $('recfor').textContent = 'for ' + id;
+  $('recctrl').style.display = 'block';
+  loadRecords();
+}
+$('runs').addEventListener('click', e => { const el = e.target.closest('.run'); if (el) selectRun(el.dataset.id); });
+$('reload').addEventListener('click', loadRecords);
+loadRuns();
+</script></body></html>

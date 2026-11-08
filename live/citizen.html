@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="copyright" content="EVASTARARCANA LLC"><title>SWITCHBOARD — Citizen Cognisance</title>
+<style>
+:root{--bg:#000;--border:#FFF;--text:#FFF;--muted:#888;--accent:#F26A1B;--mono:'IBM Plex Mono','Courier Prime',ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;padding:14px 24px;border-bottom:1px solid #222;flex-wrap:wrap}
+.brand{font-size:16px;letter-spacing:.12em}
+.bar a{color:var(--muted);text-decoration:none;letter-spacing:.06em}.bar a.on,.bar a:hover{color:var(--text)}
+.bar input{flex:1;min-width:220px;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 10px}
+.bar button{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 14px;cursor:pointer}
+.bar button:hover{background:var(--border);color:#000}
+.wrap{padding:24px}
+.panel{border:1px solid var(--border);padding:16px;margin-bottom:16px}
+.panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
+select,button.b{background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 12px;cursor:pointer}
+.kv{border-top:1px solid #1a1a1a;padding:8px 0;font-size:13px}.k{color:var(--muted)}.v{color:var(--text)}
+.note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.d-live{background:#22c55e}.d-stale{background:#ef4444}.d-none{background:#333}
+</style></head><body>
+<div class="wrap">
+  <div class="panel"><h2>CITIZEN COGNISANCE — Portland Political Web</h2>
+    <div style="margin-bottom:10px">
+      <select id="node"></select>
+      <button class="b" id="query">QUERY NODE</button>
+      <span class="note">requires the API to run with <code>SPEC1_POLITICAL_WEB=true</code></span>
+    </div>
+    <div id="out"><span class="note">pick a node</span></div>
+  </div>
+</div>
+<script src="../api.js"></script>
+<script>
+mountChrome('citizen.html', '', '../');
+const NODES = ["wilson","city_admin","auditor","pirtle","clark","avalos","dunphy","lsmith","kanal","ryan","koyama","morillo","novick","green","zimmerman","peacock","vega","county","metro","kotek","ore_leg","homelessness","housing","budget","charter","rcv","police","ethics","business_tax","pba","psr","fire_bds","irp","lwv"];
+const $ = id => document.getElementById(id);
+NODES.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; $('node').appendChild(o); });
+const pre = new URLSearchParams(location.search).get('node'); if (pre) $('node').value = pre;
+
+async function query() {
+  const id = $('node').value;
+  try {
+    const j = await SPEC1.nodeSignal(id);
+    const fresh = j.freshness_label || (j.stale ? 'STALE' : 'LIVE');
+    const dot = j.stale ? 'd-stale' : 'd-live';
+    let h = '<div class="kv"><span class="k">node:</span> <span class="v">' + esc(j.node_id) + '</span></div>' +
+            '<div class="kv"><span class="k">label:</span> <span class="v">' + esc(j.label) + '</span></div>' +
+            '<div class="kv"><span class="k">role:</span> <span class="v">' + esc(j.role) + '</span></div>' +
+            '<div class="kv"><span class="k">freshness:</span> <span class="v"><span class="dot ' + dot + '"></span>' + esc(fresh) + '</span></div>';
+    if (j.signal) {
+      const s = j.signal;
+      h += '<div class="kv"><span class="k">signal age:</span> <span class="v">' + esc(s.signal_age_hours) + ' h</span></div>' +
+           '<div class="kv"><span class="k">headline:</span> <span class="v">' + esc(s.headline) + '</span></div>' +
+           '<div class="kv"><span class="k">gate:</span> <span class="v">' + esc((s.gate_status && s.gate_status.status) || s.gate_status) + '</span></div>' +
+           '<div class="kv"><span class="k">source:</span> <span class="v">' + esc(s.source_domain) + '</span></div>' +
+           (s.analyst_voice ? '<div class="kv"><span class="k">voice:</span> <span class="v">' + esc(s.analyst_voice) + '</span></div>' : '');
+    } else {
+      h += '<div class="note" style="margin-top:8px">no live signal for this node yet (political_signals table empty).</div>';
+    }
+    $('out').innerHTML = h;
+  } catch (e) { $('out').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
+}
+$('query').addEventListener('click', query);
+</script></body></html>
