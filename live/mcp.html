@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="copyright" content="EVASTARARCANA LLC"><title>SWITCHBOARD — MCP Console</title>
+<style>
+:root{--bg:#000;--border:#FFF;--text:#FFF;--muted:#888;--accent:#F26A1B;--mono:'IBM Plex Mono','Courier Prime',ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;padding:14px 24px;border-bottom:1px solid #222;flex-wrap:wrap}
+.brand{font-size:16px;letter-spacing:.12em}.bar a{color:var(--muted);text-decoration:none;letter-spacing:.06em}.bar a.on,.bar a:hover{color:var(--text)}
+.bar input{flex:1;min-width:160px;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 10px}
+.bar button{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 14px;cursor:pointer}.bar button:hover{background:var(--border);color:#000}
+.wrap{padding:24px}.panel{border:1px solid var(--border);padding:16px;margin-bottom:16px}
+.panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
+.tool{border:1px solid #333;padding:8px 12px;margin-bottom:6px;font-size:13px}
+.tool .m{color:var(--accent)}.tool .meta{color:var(--muted);font-size:12px}
+.note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
+code{color:var(--accent)}
+</style></head><body>
+<div class="wrap">
+  <div class="panel"><h2>MCP SERVER</h2>
+    <div class="note">The SPEC-1 MCP server is a <b>stdio</b> server (not HTTP). It exposes the engine's tools to Claude via the Model Context Protocol. The capability surface below is the live OpenAPI schema of this same engine — every path is a tool the agent can call.</div>
+  </div>
+  <div class="panel"><h2>ENGINE TOOL SURFACE (live /openapi.json)</h2><div id="tools"><span class="note">loading…</span></div></div>
+</div>
+<script src="../api.js"></script>
+<script>
+mountChrome('mcp.html', '', '../');
+const $ = id => document.getElementById(id);
+
+async function loadTools() {
+  try {
+    const spec = await fetch(SPEC1.base.replace(/\/api\/v1\/?$/, '') + '/openapi.json').then(r => r.json());
+    const paths = spec.paths || {};
+    const rows = Object.keys(paths).sort().map(p => {
+      const methods = Object.keys(paths[p]).join(',').toUpperCase();
+      return '<div class="tool"><span class="m">' + esc(methods) + '</span> <code>' + esc(p) + '</code></div>';
+    });
+    $('tools').innerHTML = rows.length ? rows.join('') : '<span class="note">no paths</span>';
+  } catch (e) { $('tools').innerHTML = '<span class="bad">openapi: ' + esc(e.message) + '</span>'; }
+}
+loadTools();
+</script></body></html>

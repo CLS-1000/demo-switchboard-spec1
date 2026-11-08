@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="copyright" content="EVASTARARCANA LLC"><title>SWITCHBOARD — Legislative Desk</title>
+<style>
+:root{--bg:#000;--border:#FFF;--text:#FFF;--muted:#888;--accent:#F26A1B;--mono:'IBM Plex Mono','Courier Prime',ui-monospace,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);font-size:14px;line-height:1.5}
+.bar{display:flex;gap:10px;align-items:center;padding:14px 24px;border-bottom:1px solid #222;flex-wrap:wrap}
+.brand{font-size:16px;letter-spacing:.12em}.bar a{color:var(--muted);text-decoration:none;letter-spacing:.06em}.bar a.on,.bar a:hover{color:var(--text)}
+.bar input{flex:1;min-width:160px;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 10px}
+.bar button{background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 14px;cursor:pointer}.bar button:hover{background:var(--border);color:#000}
+select,button.b{flex:0;background:#000;border:1px solid var(--border);color:var(--text);font-family:var(--mono);padding:8px 12px;cursor:pointer}
+.wrap{padding:24px}.panel{border:1px solid var(--border);padding:16px;margin-bottom:16px}
+.panel h2{font-size:13px;letter-spacing:.1em;margin:0 0 12px;color:var(--accent)}
+.rec{border:1px solid #333;padding:10px 12px;margin-bottom:8px;cursor:pointer}.rec:hover{border-color:var(--accent)}
+.rec .m{color:var(--accent)}.rec .meta{color:var(--muted);font-size:12px}
+.kv{border-top:1px solid #1a1a1a;padding:7px 0;font-size:13px}.k{color:var(--muted)}.v{color:var(--text)}
+.note{color:var(--muted);font-size:12px}.ok{color:#22c55e}.bad{color:#ef4444}
+pre{white-space:pre-wrap;font-family:var(--mono);font-size:12px;color:var(--text);max-height:420px;overflow:auto;border:1px solid #222;padding:12px}
+</style></head><body>
+<div class="wrap">
+  <div class="panel"><h2>DESK STATUS</h2><div id="status"><span class="note">loading…</span></div></div>
+  <div class="panel"><h2>OREGON MEASURES / HEARINGS</h2>
+    <div style="margin-bottom:10px">
+      <select id="kind"><option value="">all</option><option value="measure">measure</option><option value="interim_committee">interim committee</option><option value="bill">bill</option></select>
+      <input id="q" placeholder="search title / committee" style="min-width:200px">
+      <button class="b" id="go">QUERY</button>
+    </div>
+    <div id="records"><span class="note">run a query</span></div>
+  </div>
+  <div class="panel"><h2>DESK BRIEF</h2><div id="brief"><span class="note">loading…</span></div></div>
+</div>
+<script src="../api.js"></script>
+<script>
+mountChrome('legislative.html', '', '../');
+const $ = id => document.getElementById(id);
+
+async function loadStatus() {
+  try { const s = await SPEC1.legStatus(); $('status').innerHTML = kvRows(s); }
+  catch (e) { $('status').innerHTML = '<span class="bad">status: ' + esc(e.message) + '</span>'; }
+}
+async function loadRecords() {
+  const kind = $('kind').value, q = $('q').value;
+  try {
+    const recs = await SPEC1.legRecords(kind, q);
+    $('records').innerHTML = (recs && recs.length)
+      ? recs.map(r => '<div class="rec" data-m="' + esc(r.measure||'') + '"><span class="m">' + esc(r.measure||'?') + '</span> <span class="meta">' + esc((r.kind||'')+' · '+ (r.title||'').slice(0,80)) + '</span></div>').join('')
+      : '<span class="note">no records</span>';
+  } catch (e) { $('records').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
+}
+async function loadBrief() {
+  try {
+    const b = await SPEC1.legBrief();
+    const md = b.markdown || b.brief || JSON.stringify(b, null, 2);
+    $('brief').innerHTML = '<pre>' + esc(md) + '</pre>';
+  } catch (e) { $('brief').innerHTML = '<span class="bad">' + esc(e.message) + '</span>'; }
+}
+$('records').addEventListener('click', e => {
+  const el = e.target.closest('.rec'); if (!el) return;
+  $('q').value = el.dataset.m || ''; loadRecords();
+});
+$('go').addEventListener('click', loadRecords);
+loadStatus(); loadRecords(); loadBrief();
+</script></body></html>
