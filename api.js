@@ -56,7 +56,17 @@ const SPEC1 = {
   async legBrief(date) {
     return this.get('/desk/legislative/brief' + (date ? '?date=' + date : ''));
   },
-  // Narrative / brief store
+  // Engine root (no /api/v1) — where the engine serves its own desks.
+  root() { return this.base.replace(/\/api\/v1\/?$/, ''); },
+  // Narrative Desk — guarded router (analysis_tier + publish guard). Read-only here.
+  async narrativeStatus() { return this.get('/narrative/status'); },
+  async narrativeDrafts() {
+    const j = await this.get('/narrative/drafts');
+    return j.drafts || [];
+  },
+  async narrativeDraft(id) { return this.get('/narrative/drafts/' + encodeURIComponent(id)); },
+  async narrativeEvidence(id) { return this.get('/narrative/drafts/' + encodeURIComponent(id) + '/evidence'); },
+  // Rule-based world brief store (keyword clustering, no model, no tier)
   async briefLatest() { return this.get('/brief/latest'); },
   async briefHistory() { return this.get('/brief/history'); },
 };
