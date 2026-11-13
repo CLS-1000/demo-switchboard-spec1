@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 240 240" role="img" aria-label="SWITCHBOARD mark: a Seed of Life with seven jacks and one glowing patch cable" style="filter: drop-shadow(3px 4px 0 #050B14)">
+<defs>
+<symbol id="ssb-mark" viewBox="0 0 240 240">
+<circle cx="120" cy="120" r="96" fill="none" stroke="#8FA3B8" stroke-width="1.2"></circle>
+<path d="M210 120 L216 120 M197.9 165 L203.1 168 M165 197.9 L168 203.1 M120 210 L120 216 M75 197.9 L72 203.1 M42.1 165 L36.9 168 M30 120 L24 120 M42.1 75 L36.9 72 M75 42.1 L72 36.9 M120 30 L120 24 M165 42.1 L168 36.9 M197.9 75 L203.1 72" stroke="#8FA3B8" stroke-width="1.5"></path>
+<circle cx="120" cy="120" r="64" fill="none" stroke="#D7DEE6" stroke-width="1.4"></circle>
+<polygon points="120,56 175.4,152 64.6,152" fill="none" stroke="#5E7591" stroke-width="1.2"></polygon>
+<polygon points="120,184 64.6,88 175.4,88" fill="none" stroke="#5E7591" stroke-width="1.2"></polygon>
+<polygon points="120,56 175.4,88 175.4,152 120,184 64.6,152 64.6,88" fill="none" stroke="#8FA3B8" stroke-width="1.2"></polygon>
+<circle cx="120" cy="120" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="120" cy="88" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="147.7" cy="104" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="147.7" cy="136" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="120" cy="152" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="92.3" cy="136" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<circle cx="92.3" cy="104" r="32" fill="none" stroke="#D7DEE6" stroke-width="1.2"></circle>
+<path d="M64.6 88 C 70 196, 170 196, 175.4 152" fill="none" stroke="#F26A1B" stroke-width="4" stroke-linecap="round"></path>
+<circle cx="120" cy="56" r="7" fill="#D7DEE6"></circle>
+<circle cx="120" cy="56" r="3.5" fill="#0B1420"></circle>
+<circle cx="175.4" cy="88" r="7" fill="#D7DEE6"></circle>
+<circle cx="175.4" cy="88" r="3.5" fill="#0B1420"></circle>
+<circle cx="120" cy="184" r="7" fill="#D7DEE6"></circle>
+<circle cx="120" cy="184" r="3.5" fill="#0B1420"></circle>
+<circle cx="64.6" cy="152" r="7" fill="#D7DEE6"></circle>
+<circle cx="64.6" cy="152" r="3.5" fill="#0B1420"></circle>
+<circle cx="120" cy="120" r="8" fill="#D7DEE6"></circle>
+<circle cx="120" cy="120" r="4" fill="#0B1420"></circle>
+<circle cx="64.6" cy="88" r="12" fill="#F26A1B" opacity="0.25"></circle>
+<circle cx="64.6" cy="88" r="7" fill="#F26A1B"></circle>
+<circle cx="63" cy="86.5" r="2.5" fill="#FFFFFF" opacity="0.7"></circle>
+<circle cx="175.4" cy="152" r="12" fill="#F26A1B" opacity="0.25"></circle>
+<circle cx="175.4" cy="152" r="7" fill="#F26A1B"></circle>
+<circle cx="173.8" cy="150.5" r="2.5" fill="#FFFFFF" opacity="0.7"></circle>
+</symbol>
+</defs>
+<use href="#ssb-mark" width="240" height="240"></use>
+</svg>
