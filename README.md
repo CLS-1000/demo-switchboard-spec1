@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/brand/switchboard-banner.png" alt="SWITCHBOARD" width="100%"></p>
+
 ![Proof HTML](https://github.com/CLS-1000/demo-repository/actions/workflows/proof-html.yml/badge.svg)
 
 # [switchboard]
